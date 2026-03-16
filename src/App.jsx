@@ -9,6 +9,10 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [editIndex, setEditIndex] = useState(null);
+  const [editText, setEditText] = useState("");
+
+
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
@@ -41,6 +45,19 @@ function App() {
   const completedTaskCount = todos.filter((task) => task.completed).length;
   const remainingTaskCount = todos.length - completedTaskCount;
 
+  const startEdit = (index) => {
+    setEditIndex(index);
+    setEditText(todos[index].text);
+  }
+
+  const saveEdit = (index) => {
+    const updatedTodos = [...todos];
+    updatedTodos[index].text = editText;
+
+    setTodos(updatedTodos);
+    setEditIndex(null);
+  }
+
   return (
     <div className='container'>
         <h1>Todo App</h1>
@@ -70,14 +87,32 @@ function App() {
         {
           todos.map((todo, index) => (
             <div className='todo-item' key={index}>
-              <span 
-                className={todo.completed ? "completed" : ""}
-                onClick={() => toggleComplete(index)}
-              >
-                {todo.text}
-              </span>
 
-              <button onClick={() => deleteTask(index)}>Delete</button>
+              {
+                editIndex === index ? (
+                  <>
+                    <input
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    >
+                    </input>
+
+                    <button onClick={() => saveEdit(index)}>Save</button>
+                  </>
+                ) : (
+                  <>
+                    <span 
+                      className={todo.completed ? "completed" : ""}
+                      onClick={() => toggleComplete(index)}
+                    >
+                      {todo.text}
+                    </span>
+
+                    <button onClick={() => startEdit(index)}>Edit ✏️</button>
+                    <button onClick={() => deleteTask(index)}>Delete 🗑</button>
+                  </>
+                )
+              }
             </div>
           ))
         }
